@@ -37,6 +37,7 @@ int main(int argc, char **argv)
 	if (!IsWindowsXPSP3OrGreater())//Win XP, Win XP SP1 and Win XP SP2 doesn't support SHA512
 	{
 		printf("Minimum supported OS, Windows XP SP3.\n");
+		return EXIT_FAILURE;
 	}
 
 	printf("\nText: %s\n", argv[1]);
