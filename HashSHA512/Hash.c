@@ -21,3 +21,50 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MY_ENCODING_TYPE  (PKCS_7_ASN_ENCODING | X509_ASN_ENCODING)
 #include "Hash.h"
 
+bool HashInit(HCRYPTHASH *hCryptHash, HCRYPTPROV *hCryptProv)
+{
+	if (!CryptAcquireContextW(hCryptProv, NULL, NULL, PROV_RSA_AES, CRYPT_VERIFYCONTEXT))
+	{
+		printf("Error: %d\n", GetLastError());
+		return false;
+	}
+
+	if (!CryptCreateHash(*hCryptProv, CALG_SHA_512, 0, 0, hCryptHash))
+	{
+		printf("Error: %d\n", GetLastError());
+		CryptReleaseContext(hCryptProv, 0);
+		hCryptProv = NULL;
+		return false;
+	}
+
+	return true;
+}
+
+bool GenerateHash(HCRYPTHASH hCryptHash, unsigned char *hash, unsigned long hashLen, const unsigned char *data, unsigned long dataLen)
+{
+	if (hCryptHash == NULL || data == NULL)
+		return false;
+
+	if (!CryptHashData(hCryptHash, data, dataLen, 0))
+	{
+		printf("Error: %d\n", GetLastError());
+		return false;
+	}
+
+	if (hCryptHash == NULL)
+		return false;
+
+	if (!CryptGetHashParam(hCryptHash, HP_HASHVAL, hash, &hashLen, 0))
+	{
+		printf("Error: %d\n", GetLastError());
+		return false;
+	}
+
+	return true;
+}
+
+void HashUninit(HCRYPTHASH hCryptHash, HCRYPTPROV hCryptProv)
+{
+	if (hCryptHash)	if (!CryptDestroyHash(hCryptHash)) printf("Error: %d\n", GetLastError());
+	if (hCryptProv)	if (!CryptReleaseContext(hCryptProv, 0)) printf("Error: %d\n", GetLastError());
+}

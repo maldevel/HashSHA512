@@ -17,10 +17,44 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <Windows.h>
+#include <stdio.h>
+#include <VersionHelpers.h>
 #include "Hash.h"
 
-int main(void)
+int main(int argc, char **argv)
 {
+	HCRYPTPROV hCryptProv = 0;
+	HCRYPTHASH hCryptHash = 0;
+	unsigned char hash[SHA512_LENGTH] = { 0 };
+	unsigned long hashLen = SHA512_LENGTH;
+
+	if (argc != 2)
+	{
+		printf("usage: HashSHA512.exe <string to hash>\n");
+		return EXIT_FAILURE;
+	}
+
+	if (!IsWindowsXPSP3OrGreater())//Win XP, Win XP SP1 and Win XP SP2 doesn't support SHA512
+	{
+		printf("Minimum supported OS, Windows XP SP3.\n");
+	}
+
+	printf("\nText: %s\n", argv[1]);
+
+	if (!HashInit(&hCryptHash, &hCryptProv))
+	{
+		printf("Hash 512 generation failed\n");
+		return EXIT_FAILURE;
+	}
+
+	if (GenerateHash(hCryptHash, hash, hashLen, (unsigned char*)argv[1], (unsigned long)strlen(argv[1])))
+	{
+		printf("Hash SHA 512: ");
+		for (unsigned long i = 0; i < hashLen; i++) printf("%02X", hash[i]);
+		printf("\n");
+	}
+
+	HashUninit(hCryptHash, hCryptProv);
 
 	return EXIT_SUCCESS;
 }

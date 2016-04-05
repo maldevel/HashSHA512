@@ -18,3 +18,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdbool.h>
+
+#define SHA512_LENGTH 64
+
+bool HashInit(HCRYPTHASH *hCryptHash, HCRYPTPROV *hCryptProv);
+bool GenerateHash(HCRYPTHASH hCryptHash, unsigned char *hash, unsigned long hashLen, const unsigned char *data, unsigned long dataLen);
+void HashUninit(HCRYPTHASH hCryptHash, HCRYPTPROV hCryptProv);
